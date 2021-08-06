@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import (
     render,
     redirect,
@@ -19,6 +21,14 @@ def patient_detail_view(request, patient_id):
     context = {"patient": patient}
     return render(request, "patient_details_template.html", context)
 
+@csrf_exempt
+def sms_view(request):
+    resp = MessagingResponse()
+    print(request.POST.body)
+    resp.message("testing things")
+    return HttpResponse(resp.to_xml(), content_type='text/xml')
+    #return render(request, "sms_template.html")
+    
 def patient_form_view(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
