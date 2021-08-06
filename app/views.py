@@ -21,6 +21,16 @@ from .models import (
 
 inter = RecieveSend()
 
+
+#automated message functions
+def greeting(patient):
+    return f'You are being contacted by the Local Health Unit to monitor your COVID-19 symptoms. \n\n' \
+    f'Our records show your full legal name as {patient.first_name} {patient.last_name} and your date of birth as ' \
+    f'{patient.date_of_birth}.\n\n If any of this information is inaccurate, text "INFO". \n\nOtherwise, text "NEXT". ' \
+    f'If at any time you wish to speak with a service representative, call 1-111-1-HEALTH.'
+
+
+
 def nurse_dashboard_view(request):
     context = {}
     context["patients"] = Patient.objects.all()
@@ -34,7 +44,10 @@ def patient_detail_view(request, patient_id):
 
 @csrf_exempt
 def sms_view(request):
-    inter.save_messages(request)
+    inter.save_messages(request, True)
+    patient = Patient.objects.filter(phone_number = request.POST.get("From"))[0]
+    inter.send_questions(patient)
+    #inter.send_questions()
     return HttpResponse("", content_type='text/xml')
     
 def patient_form_view(request):
@@ -43,6 +56,9 @@ def patient_form_view(request):
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Patient Created')
+            phone_number = form.cleaned_data.get("phone_number")
+            patient = Patient.objects.filter(phone_number = phone_number)[0]
+            inter.send_message(greeting(patient), phone_number)
             return redirect(reverse('nurse_dashboard_url'))
         else:
             messages.add_message(request, messages.ERROR, 'Format Phone Numbers like +41524204242')
@@ -51,7 +67,7 @@ def patient_form_view(request):
     context = {}
     context['form'] = form
     return render(request, "patient_form_template.html", context)
-
+  
 def add_new_message_form_view(request, patient_id):
     patient = Patient.objects.get(id = patient_id)
     if request.method == 'POST':
