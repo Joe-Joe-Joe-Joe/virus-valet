@@ -1,7 +1,7 @@
 # Description
 - Automated Covid-19 and other disease patient check-in
 
-# Properties
+# Deliverables
 - Sends series of questions to patient and awaits response
 - Displays questions and responses in a web dashboard
 - Nurse can create a new patient through a form
