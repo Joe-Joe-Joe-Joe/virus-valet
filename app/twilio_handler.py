@@ -5,6 +5,7 @@ from .models import (Patient, Message)
 
 class RecieveSend:
     def __init__(self):
+
         values = open("secrets.hidden", "r").read().split()
         self.sid = values[0]
         self.token = values[1]
