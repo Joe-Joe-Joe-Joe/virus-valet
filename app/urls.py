@@ -6,6 +6,6 @@ from .views import (
 )
 
 urlpatterns = [
-    path('dashboard/', nurse_dashboard_view, name='nurse_dashboard_url'),
+    path('', nurse_dashboard_view, name='nurse_dashboard_url'),
     path('patient/<int:patient_id>/', patient_detail_view, name='nurse_dashboard_url'),
 ]
