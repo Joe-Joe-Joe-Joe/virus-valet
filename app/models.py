@@ -18,5 +18,5 @@ class Message(models.Model):
     is_patient = models.BooleanField()
 
     def __str__(self):
-        return f"{self.patient.first_name} {self.message[:20]}"
+        return f"{self.patient.first_name} {self.message[:20]} {self.is_patient}"
 
