@@ -9,9 +9,15 @@ from django.contrib import messages
 
 from .twilio_handler import RecieveSend
 
-from .forms import PatientForm
+from .forms import (
+    PatientForm,
+    AddMessageForm
+)
 
-from .models import Patient
+from .models import (
+    Patient,
+    Message
+)
 
 inter = RecieveSend()
 
@@ -30,7 +36,6 @@ def patient_detail_view(request, patient_id):
 def sms_view(request):
     inter.save_messages(request)
     return HttpResponse("", content_type='text/xml')
-    #return render(request, "sms_template.html")
     
 def patient_form_view(request):
     if request.method == 'POST':
@@ -46,3 +51,23 @@ def patient_form_view(request):
     context = {}
     context['form'] = form
     return render(request, "patient_form_template.html", context)
+
+def add_new_message_form_view(request, patient_id):
+    patient = Patient.objects.get(id = patient_id)
+    if request.method == 'POST':
+        form = AddMessageForm(request.POST)
+        if form.is_valid():
+            message = Message(
+                patient = patient,
+                message = form.cleaned_data.get('message'),
+                is_patient = False,
+                sent_by_nurse = True,
+            )
+            inter.send_message(message.message, message.patient.phone_number.as_e164)
+            message.save()
+            messages.add_message(request, messages.SUCCESS, 'Message sent')
+        else:
+            messages.add_message(request, messages.ERROR, 'Please Try Again')
+    form = AddMessageForm()
+    context = {'form': form, "patient": patient}
+    return render(request, "add_new_message_form_template.html", context)
