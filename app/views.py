@@ -44,9 +44,9 @@ def patient_detail_view(request, patient_id):
 
 @csrf_exempt
 def sms_view(request):
-    inter.save_messages(request, True)
+    is_answer = inter.save_messages(request, True)
     patient = Patient.objects.filter(phone_number = request.POST.get("From"))[0]
-    inter.send_questions(patient)
+    inter.send_questions(patient, is_answer)
     #inter.send_questions()
     return HttpResponse("", content_type='text/xml')
     
@@ -59,6 +59,7 @@ def patient_form_view(request):
             phone_number = form.cleaned_data.get("phone_number")
             patient = Patient.objects.filter(phone_number = phone_number)[0]
             inter.send_message(greeting(patient), phone_number)
+            inter.send_questions(patient)
             return redirect(reverse('nurse_dashboard_url'))
         else:
             messages.add_message(request, messages.ERROR, 'Format Phone Numbers like +41524204242')
@@ -79,8 +80,9 @@ def add_new_message_form_view(request, patient_id):
                 is_patient = False,
                 sent_by_nurse = True,
             )
+
             inter.send_message(message.message, message.patient.phone_number.as_e164)
-            message.save()
+            inter.save_messages({"Body": message.message, "From" : str(message.patient.phone_number)}, is_patient=False, is_nurse=True, is_question=False, real_request=False)
             messages.add_message(request, messages.SUCCESS, 'Message sent')
         else:
             messages.add_message(request, messages.ERROR, 'Please Try Again')
