@@ -1,0 +1,11 @@
+Hello <firstname>. You are being contacted by the <locality> Health Unit to monitor your COVID-19 symptoms. Our recrods show your full legal name as <firstname> <lastname> and your date of birth as <YYYY/MM/DD>. If any of this information is inaccurate, text "INFO". Otherwise, text "NEXT". If at any time you wish to speak with a service representative, call <number>.
+
+Are you experiencing any of the following symptoms? (text "YES" or "NO") <list of symptoms>
+
+Based on our records, you are required to isolate from <startdate> until <enddate>. Have there been any breaches in your isolation? (text "YES" or "NO").
+
+Based on the latest guidance from the Ministry of Health, you should book a COVID-19 test as soon as possible. <testing booking link>
+
+<Additional comments message based on account flags>
+
+How was your experience today? Share your feedback with us at <linktononexistantfeedbackform>
