@@ -3,8 +3,9 @@ from twilio.rest import Client
 
 class SeRe:
     def __init__(self):
-        self.sid = ""
-        self.token = ""
+        values = open("secrets.hidden", "r").read().split()
+        self.sid = values[0]
+        self.token = values[1]
         self.client = Client(self.sid, self.token)
         self.default_number = "+12262708145"
 
@@ -22,4 +23,4 @@ class SeRe:
 
 if __name__ == "__main__":
     inter = SeRe()
-    inter.send_message("message content", '+15199999999')
+    inter.send_message("message content", '+15191234123')
