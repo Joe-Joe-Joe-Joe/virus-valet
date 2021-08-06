@@ -32,6 +32,19 @@ class RecieveSend:
             to=number_to
         )
 
+    def check_answer(self, patient, body):
+        messages = Message.objects.filter(patient = patient)
+        questions = [i for i in messages if i.is_question]
+        if len(questions):
+            questions.reverse()
+            for current_question in questions:
+                possible_question_answers = self.questions.get(current_question.message)
+                if body.lower() in possible_question_answers:
+                    return current_question.id
+            return -1
+        return -1
+
+
     def save_messages(self, request, is_patient, is_question = False, real_request = True):
         if real_request:
             pull = lambda x : request.POST.get(x)
@@ -41,22 +54,29 @@ class RecieveSend:
         phone_number = pull("From")
 
         print()
-        print(body, phone_number)
+        print("Saved:", body, phone_number)
         print()
 
         patient = Patient.objects.filter(phone_number = phone_number)[0]
-        message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question)
+
+        answer_ids = [i.is_answer for i in Message.objects.filter(patient = patient) if i.is_answer > 0]
+        is_answer = self.check_answer(patient, body) # and is_patient and not is_question
+        if is_answer in answer_ids:
+            is_answer = -1
+        message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer)
         message.save()
 
-    def check_message_answer(self, request):
-        pass
 
     def send_questions(self, patient):
-        self.print_messages()
         messages = Message.objects.filter(patient = patient)
-        messages = [i.message for i in messages if i.is_question]
+        questions = [i.message for i in messages if i.is_question]
+
+        question_ids = [i.id for i in messages if i.is_question]
+        answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
+        if len(question_ids) != len(answer_ids):
+            return
         for i in self.questions:
-            if i not in messages:
+            if i not in questions:
                 self.send_message(i, str(patient.phone_number))
                 self.save_messages({"Body": i, "From": str(patient.phone_number)}, is_patient=False, is_question=True, real_request=False)
                 return
