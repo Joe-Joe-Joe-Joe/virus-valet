@@ -6,8 +6,10 @@ from django.forms import (
     TextInput,
     Textarea
 )
-from .models import Patient
-
+from .models import (
+    Patient,
+    Message
+)
 
 class DateInput(DateInput):
     input_type='date'
@@ -25,3 +27,12 @@ class PatientForm(ModelForm):
     date_of_birth = DateField(widget=DateInput)
     phone_number = CharField(max_length=20, widget=TextInput)
     address = CharField(widget=Textarea)
+
+class AddMessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = [
+            'message',
+        ]
+
+    message = CharField(widget=Textarea)
