@@ -21,13 +21,14 @@ class RecieveSend:
             to=number_to
         )
 
-    def save_messages(self, request):
+    def save_messages(self, request, is_patient):
         pull = lambda x : request.POST.get(x)
         body = pull("Body")
         phone_number = pull("From")
-        print(request.POST)
-        Patient.objects.filter(phone_number = phone_number)
-        print(Patient)
+        patient = Patient.objects.filter(phone_number = phone_number)[0]
+        message = Message(patient = patient, message = body, is_patient = is_patient)
+
+        message.save()
 
 
 
