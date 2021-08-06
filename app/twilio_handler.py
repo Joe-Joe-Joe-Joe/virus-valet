@@ -1,7 +1,9 @@
 import os
 from twilio.rest import Client
+from .models import (Patient, Message)
 
-class SeRe:
+
+class RecieveSend:
     def __init__(self):
         values = open("secrets.hidden", "r").read().split()
         self.sid = values[0]
@@ -18,6 +20,14 @@ class SeRe:
             from_=number_from,
             to=number_to
         )
+
+    def save_messages(self, request):
+        pull = lambda x : request.POST.get(x)
+        body = pull("Body")
+        phone_number = pull("From")
+        print(request.POST)
+        Patient.objects.filter(phone_number = phone_number)
+        print(Patient)
 
 
 

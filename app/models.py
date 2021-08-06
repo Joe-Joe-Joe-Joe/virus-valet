@@ -11,3 +11,8 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+class Message(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    message = models.CharField(max_length=1000)
+

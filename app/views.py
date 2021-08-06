@@ -7,9 +7,13 @@ from django.shortcuts import (
 )
 from django.contrib import messages
 
+from .twilio_handler import RecieveSend
+
 from .forms import PatientForm
 
 from .models import Patient
+
+inter = RecieveSend()
 
 def nurse_dashboard_view(request):
     context = {}
@@ -24,10 +28,8 @@ def patient_detail_view(request, patient_id):
 
 @csrf_exempt
 def sms_view(request):
-    resp = MessagingResponse()
-    print(request.POST.body)
-    resp.message("testing things")
-    return HttpResponse(resp.to_xml(), content_type='text/xml')
+    inter.save_messages(request)
+    return HttpResponse("", content_type='text/xml')
     #return render(request, "sms_template.html")
     
 def patient_form_view(request):
