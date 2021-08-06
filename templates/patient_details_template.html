@@ -1,13 +1,37 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
-<table class="table table-hover">
-  <tbody>
-    <tr><td>Name: {{ patient.first_name }} {{  patient.last_name}}</td></tr>
-    <tr><td>Phone: {{ patient.phone_number }}</td></tr>
-    <tr><td>Birth: {{ patient.date_of_birth }}</td></tr>
-    <tr><td>Address: {{ patient.address }}</td></tr>
-    <tr><td><a href="{% url 'add_new_message_form_url' patient.id%}" class="btn btn-info"><i class="fa fa-envelope-open-o"></i></a></td></tr>
-  </tbody>
-</table>
+<div class='card' style='padding: 2%;'>
+    <h3>Your Conversation With <b>{{patient.first_name}} {{patient.last_name}} </b> </h3>
+    <h4>Phone:  {{ patient.phone_number }}</h4>
+    <div class="input-group">
+        <form action="" method="post" style="width: 100%;">
+            {% csrf_token %}
+            <div class="input-group" style="padding: 2%; width: 100%;">
+                <label for="message" style="visibility: hidden; width: 0; height: 0;">Type Your Message:</label>
+                <textarea type="text" id="message" class="form-control" placeholder="Send a Message" aria-label="Recipient's username with two button addons" name="message"></textarea>
+                <button class="btn btn-success" type="submit">Send</button>
+            </div>
+
+
+        </form>
+    </div>
+    <div class='message-inbox' style='max-height:40vh; overflow: scroll;'>
+        <ul>
+            {% for message in patient_messages %}
+            <div class="card">
+                <div class="card-body">
+                    <b><i class="fa fa-{{ message.icon }}"></i> {{message.name}}:</b> {{ message.date_created }}
+                    <p class="card-text" style='font-weight: 900;'>{{message.message}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+
+
 {% endblock content %}
