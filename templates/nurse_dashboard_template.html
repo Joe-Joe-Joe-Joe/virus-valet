@@ -14,6 +14,7 @@
         <td>{{ patient.phone_number }}</td>
         <td>{{ patient.date_of_birth }}</td>
         <td>{{ patient.address }}</td>
+        <td><a href="{% url 'add_new_message_form_url' patient.id%}" class="btn btn-info"><i class="fa fa-envelope-open-o"></i></a></td>
     </tr>
     {% endfor %}
   </tbody>
