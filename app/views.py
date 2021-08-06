@@ -3,6 +3,7 @@ from django.shortcuts import (
     redirect,
     reverse,
 )
+from django.contrib import messages
 
 from .forms import PatientForm
 
@@ -24,10 +25,10 @@ def patient_form_view(request):
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-            print("patient created")
+            messages.add_message(request, messages.SUCCESS, 'Patient Created')
             return redirect(reverse('nurse_dashboard_url'))
         else:
-            print("invalid patient data please try again")
+            messages.add_message(request, messages.ERROR, 'Format Phone Numbers like +41524204242')
 
     form = PatientForm()
     context = {}
