@@ -45,7 +45,7 @@ class RecieveSend:
         return -1
 
 
-    def save_messages(self, request, is_patient, is_question = False, real_request = True):
+    def save_messages(self, request, is_patient, is_question = False, sent_by_nurse = False, real_request = True):
         if real_request:
             pull = lambda x : request.POST.get(x)
         else:
@@ -63,7 +63,7 @@ class RecieveSend:
         is_answer = self.check_answer(patient, body) # and is_patient and not is_question
         if is_answer in answer_ids:
             is_answer = -1
-        message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer)
+        message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer, sent_by_nurse = sent_by_nurse)
         message.save()
 
 
