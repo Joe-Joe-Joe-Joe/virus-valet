@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Send A New Message to {{ patient.first_name }} {{ patient.last_name }}</h1>
+<div>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <input type="submit" type="pass" value="Send Message" class="btn btn-lg btn-success"/>
+    </form>
+</div>
+{% endblock content %}
