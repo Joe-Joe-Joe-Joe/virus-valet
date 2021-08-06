@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Patient {{ patient_id }}</h1>
+<table class="table table-hover">
+  <tbody>
+    <tr><td>Name: {{ patient.first_name }} {{  patient.last_name}}</td></tr>
+    <tr><td>Phone: {{ patient.phone_number }}</td></tr>
+    <tr><td>Birth: {{ patient.date_of_birth }}</td></tr>
+    <tr><td>Address: {{ patient.address }}</td></tr>
+  </tbody>
+</table>
 {% endblock content %}
