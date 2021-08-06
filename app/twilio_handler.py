@@ -19,6 +19,9 @@ class RecieveSend:
         for i in Message.objects.all():
             i.delete()
 
+    def print_messages(self):
+        print(Message.objects.all())
+
     def send_message(self, body, number_to, number_from = None):
         if number_from is None:
             number_from = self.default_number
@@ -29,7 +32,7 @@ class RecieveSend:
             to=number_to
         )
 
-    def save_messages(self, request, is_patient, real_request = True):
+    def save_messages(self, request, is_patient, is_question = False, real_request = True):
         if real_request:
             pull = lambda x : request.POST.get(x)
         else:
@@ -42,23 +45,21 @@ class RecieveSend:
         print()
 
         patient = Patient.objects.filter(phone_number = phone_number)[0]
-        message = Message(patient = patient, message = body, is_patient = is_patient)
+        message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question)
         message.save()
 
+    def check_message_answer(self, request):
+        pass
+
     def send_questions(self, patient):
+        self.print_messages()
         messages = Message.objects.filter(patient = patient)
-        messages = [i.message for i in messages if not i.is_patient]
-        print(messages)
+        messages = [i.message for i in messages if i.is_question]
         for i in self.questions:
             if i not in messages:
-                print(i)
                 self.send_message(i, str(patient.phone_number))
-                self.save_messages({"Body": i, "From": str(patient.phone_number)}, is_patient=False, real_request=False)
+                self.save_messages({"Body": i, "From": str(patient.phone_number)}, is_patient=False, is_question=True, real_request=False)
                 return
         return
 
 
-
-if __name__ == "__main__":
-    inter = SeRe()
-    inter.send_message("message content", '+15191234123')
