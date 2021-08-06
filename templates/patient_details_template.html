@@ -7,6 +7,7 @@
     <tr><td>Phone: {{ patient.phone_number }}</td></tr>
     <tr><td>Birth: {{ patient.date_of_birth }}</td></tr>
     <tr><td>Address: {{ patient.address }}</td></tr>
+    <tr><td><a href="{% url 'add_new_message_form_url' patient.id%}" class="btn btn-info"><i class="fa fa-envelope-open-o"></i></a></td></tr>
   </tbody>
 </table>
 {% endblock content %}
