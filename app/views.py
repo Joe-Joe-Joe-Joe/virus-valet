@@ -1,16 +1,34 @@
-from django.shortcuts import render
+from django.shortcuts import (
+    render,
+    redirect,
+    reverse,
+)
+
 from .forms import PatientForm
 
+from .models import Patient
+
 def nurse_dashboard_view(request):
-    return render(request, "nurse_dashboard_template.html")
+    context = {}
+    context["patients"] = Patient.objects.all()
+    context["test"] = "hello world"
+    return render(request, "nurse_dashboard_template.html", context)
 
 def patient_detail_view(request, patient_id):
-    context = {"patient_id": patient_id}
+    patient = Patient.objects.get(id=patient_id)
+    context = {"patient": patient}
     return render(request, "patient_details_template.html", context)
 
-def patient_form_view(request, patient_id):
+def patient_form_view(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            print("patient created")
+            return redirect(reverse('nurse_dashboard_url'))
+        else:
+            print("invalid patient data please try again")
+
     form = PatientForm()
     context = {}
     context['form'] = form
