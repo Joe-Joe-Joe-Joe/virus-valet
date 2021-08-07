@@ -53,7 +53,7 @@ def patient_detail_view(request, patient_id):
                 is_question=True,
             )
             inter.send_message(message.message, message.patient.phone_number.as_e164)
-            inter.save_messages({"Body": message.message, "From": str(message.patient.phone_number)}, is_patient=False, is_nurse=True, real_request=False)
+            inter.save_messages({"Body": message.message, "From": str(message.patient.phone_number)}, is_patient=False, is_question=True, is_nurse=True, real_request=False)
             messages.add_message(request, messages.SUCCESS, 'Message sent')
         else:
             messages.add_message(request, messages.ERROR, 'Please Try Again')
@@ -109,7 +109,7 @@ def patient_form_view(request):
             inter.send_questions(patient)
             return redirect(reverse('nurse_dashboard_url'))
         else:
-            messages.add_message(request, messages.ERROR, 'Format Phone Numbers like +41524204242')
+            messages.add_message(request, messages.ERROR, 'Format Phone Numbers like +1### ### ####')
 
     form = PatientForm()
     context = {}

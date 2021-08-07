@@ -28,7 +28,8 @@ class RecieveSend:
             i.delete()
 
     def print_messages(self):
-        print(Message.objects.all())
+        for i in Message.objects.all():
+            print(i, i.id)
 
     def send_message(self, body, number_to, number_from = None):
         if number_from is None:
@@ -66,11 +67,17 @@ class RecieveSend:
         print()
 
         patient = Patient.objects.filter(phone_number = phone_number)[0]
+        messages = list(Message.objects.filter(patient = patient))
+        nurse_questions = [i for i in messages if i.is_question and i.sent_by_nurse]
+
 
         answer_ids = [i.is_answer for i in Message.objects.filter(patient = patient) if i.is_answer > 0]
         is_answer = self.check_answer(patient, body) # and is_patient and not is_question
-        if is_answer in answer_ids:
+        if not is_nurse and is_answer in answer_ids:
             is_answer = -1
+        if len(messages) and len(nurse_questions) and messages[-1].id == nurse_questions[-1].id:
+            is_answer = nurse_questions[-1].id
+            print("this is a nurse answer")
         message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer, sent_by_nurse = is_nurse)
         message.save()
         return is_answer
@@ -78,15 +85,19 @@ class RecieveSend:
 
     def send_questions(self, patient, is_answer = 1):
         messages = Message.objects.filter(patient = patient)
+        bot_questions = [i.message for i in messages if i.is_question and not i.sent_by_nurse]
+        nurse_questions = [i.message for i in messages if i.is_question and i.sent_by_nurse]
+        self.print_messages()
+        print("answers", [i for i in messages if i.is_answer > 0])
         questions = [i.message for i in messages if i.is_question]
-        if is_answer < 0 and questions[-1] != list(self.questions.keys())[-1]:
+        if is_answer < 0 and bot_questions[-1] != list(self.questions.keys())[-1]:
             self.send_message(f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", str(patient.phone_number))
             self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", "From": str(patient.phone_number)}, is_patient=False, real_request=False)
             return
         question_ids = [i.id for i in messages if i.is_question]
         answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
         if len(question_ids) != len(answer_ids):
-            returns
+            return
         for i in self.questions:
             if i not in questions:
                 self.send_message(i, str(patient.phone_number))
