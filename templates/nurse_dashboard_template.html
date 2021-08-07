@@ -8,19 +8,47 @@
 
 <table class="table table-hover">
   <tbody>
-    {% for patient in patients %}
-    <tr>
-        <td><img height=40 width=40 src="{{ patient.img }}"/></td>
-
-        <td>
-            <a href="{% url 'patient_detail_url' patient.id %}" class="btn btn-info">{{ patient.first_name }} {{ patient.last_name }}</a>
-        </td>
-        <td>{{ patient.phone_number }}</td>
-        <td>{{ patient.date_of_birth }}</td>
-        <td>{{ patient.address }}</td>
-        <td><a href="{% url 'patient_detail_url' patient.id %}" class="btn btn-info"><i class="fa fa-envelope-open-o"></i></a></td>
-    </tr>
-    {% endfor %}
+    
+    <style>
+      table {
+        border-bottom: 1px solid #ccc;
+        table-layout: auto;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      table td {
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding: 1em;
+      }
+      table .absorbing-column {
+        width: 100%;
+    }
+    </style>
+    <table>
+      
+      <tr style = "border: 1px solid #ccc; text-align: center;">
+        <th style = "border-right: 1px solid #ccc;">Risk to Self</th>
+        <th style = "border-right: 1px solid #ccc;">Risk to Others</th>
+        <th style = "border-right: 1px solid #ccc;">Name</th>
+        <th style = "border-right: 1px solid #ccc;">Phone Number</th>
+        <th style = "border-right: 1px solid #ccc;">Date of Birth</th>
+        <th style = "border-right: 1px solid #ccc;">Address</th>
+        <th></th>
+      </tr>
+      {% for patient in patients %}
+      <tr>
+          <td><img height=40 width=40 src="{{ patient.risk_to_selfs }}"/></td>
+          <td><img height=40 width=40 src="{{ patient.risk_to_other }}"/></td>
+          <td><a href="{% url 'patient_detail_url' patient.id %}" class="btn btn-info">{{ patient.first_name }} {{ patient.last_name }}</a></td>
+          <td>{{ patient.phone_number }}</td>
+          <td>{{ patient.date_of_birth }}</td>
+          <td>{{ patient.address }}</td>
+          <td><a href="{% url 'patient_detail_url' patient.id %}" class="btn btn-info"><i class="fa fa-envelope-open-o"></i></a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    
   </tbody>
 </table>
 {% endblock content %}

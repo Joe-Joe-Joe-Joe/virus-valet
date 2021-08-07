@@ -41,19 +41,40 @@ def greeting(patient):
 
 
 
-
+def predict(values):
+    import random
+    return random.choice([0, 1, 2])
 
 def nurse_dashboard_view(request):
-    patients = Patient.objects.all().values()
+    lacking_others = Patient.objects.filter(risk_to_others = -1)
+    lacking_self = Patient.objects.filter(risk_to_self= -1)
+
+    for i in lacking_others:
+        data = inter.gather_user_data(i)
+        if data.is_symptomatic and (data.attending_public or data.not_isolating):
+            i.risk_to_others = 2
+        elif data.is_symptomatic or data.attending_public or data.not_isolating:
+            i.risk_to_others = 1
+        else:
+            i.risk_to_others = 0
+        i.save()
+
+
+    for i in lacking_self:
+        i.risk_to_self = -1  # predict([1, 2, 3])
+        i.save()
+
+    patients = Patient.objects.all().order_by('risk_to_self').order_by('risk_to_others').values()
+    num_to_color = {
+        0: "red",
+        1: "yellow",
+        2: "green"
+    }
 
     for patient in patients:
-        data = inter.gather_user_data(Patient.objects.filter(phone_number = patient.get("phone_number"))[0])
-        if data.is_symptomatic and (data.attending_public or data.not_isolating):
-            patient["img"] = img_map["red"]
-        elif data.is_symptomatic or data.attending_public or data.not_isolating:
-            patient["img"] = img_map["yellow"]
-        else:
-            patient["img"] = img_map["green"]
+        print(patient['risk_to_others'])
+        patient['risk_to_selfs'] = img_map[num_to_color[patient['risk_to_others']]]
+
 
     context = {
         "patients": patients,
@@ -79,7 +100,7 @@ def patient_detail_view(request, patient_id):
         else:
             messages.add_message(request, messages.ERROR, 'Please Try Again')
         return HttpResponseRedirect(reverse('patient_detail_url', args=[patient.id]))
-    raw_messages = Message.objects.filter(patient=patient).order_by('date_created')
+    raw_messages = Message.objects.filter(patient=patient).order_by('-date_created')
 
     patient_messages = []
     for message in raw_messages:
@@ -95,7 +116,7 @@ def patient_detail_view(request, patient_id):
 
         else:
             name = "Bot"
-            icon = "cog"
+            icon = "android"
 
         patient_messages.append({
             "name": name,
@@ -115,6 +136,7 @@ def sms_view(request):
     is_answer = inter.save_messages(request, True)
     patient = Patient.objects.filter(phone_number = request.POST.get("From"))[0]
     inter.send_questions(patient, is_answer)
+    print(inter.gather_user_symptoms(patient))
     #inter.send_questions()
     return HttpResponse("", content_type='text/xml')
     

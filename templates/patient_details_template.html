@@ -3,33 +3,74 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class='card' style='padding: 2%;'>
-    <h3>Your Conversation With <b>{{patient.first_name}} {{patient.last_name}} </b> </h3>
-    <h4>Phone:  {{ patient.phone_number }}</h4>
+<div style = "justify-self: center;">
+    <h3 style = "text-align: center;">{{patient.first_name}} {{patient.last_name}} | <p style = "display: inline;" id = "phoneNumber">{{ patient.phone_number }}</p></h3>
+
     <div class="input-group">
-        <form action="" method="post" style="width: 100%;">
+        <form action="" method="post" style="width: 100%; padding-bottom: 3%;">
             {% csrf_token %}
-            <div class="input-group" style="padding: 2%; width: 100%;">
+            <div class="input-group" style="padding-right: 2em; padding-left: 2em;">
                 <label for="message" style="visibility: hidden; width: 0; height: 0;">Type Your Message:</label>
                 <textarea type="text" id="message" class="form-control" placeholder="Send a Message" aria-label="Recipient's username with two button addons" name="message"></textarea>
-                <button class="btn btn-success" type="submit">Send</button>
+                <button class="btn btn-lg btn-primary"type="submit">Send</button>
             </div>
         </form>
     </div>
-    <div class='message-inbox' style='max-height:40vh; overflow: scroll;'>
-        <ul>
+    <div class = "messagebox" style='max-height:60vh; margin-right: 2em; overflow: scroll; overflow-x: hidden;'>
+        <table >
+            <tr style = "border-bottom: 1px solid black;">
+                <th style = "padding-left: 2em;">Message</th>
+                <th style = "text-align: center; padding-right: 1em;">Sender</th>
+            </tr>
             {% for message in patient_messages %}
-            <div class="card {{ message.name }}">
-                <div class="card-body">
-                    <b><i class="fa fa-{{ message.icon }}"></i> {{message.name}}:</b> {{ message.date_created }}
-                    <p class="card-text" style='font-weight: 900;'>{{message.message}}</p>
-                </div>
-            </div>
+            <tr class = {{ message.name }} style = "border: 1px solid lightgray">
+                <td style = "padding: 2em; color: black;"><p>{{ message.message }}</p></td>
+                <td style = "text-align: center;"><i class="fa fa-{{ message.icon }}"></i></td>
+            </tr>
             {% endfor %}
-        </ul>
+            <tr></tr>
     </div>
 </div>
 
+<script>
+    phonenumber = document.getElementById("phoneNumber");
+    number = phonenumber.innerHTML;
+    console.log(number)
+    new_number = `${number.slice(0, 2)} ${number.slice(2, 5)}-${number.slice(5, 8)}-${number.slice(8, 12)}`
+    phonenumber.innerHTML = new_number
+    
+</script>
 
+
+<style>
+
+
+     /* Designing for scroll-bar */
+     ::-webkit-scrollbar {
+            width: 6px;
+        }
+      
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: gainsboro;
+            border-radius: 5px;
+        }
+      
+        /* Handle */
+        .messagebox::-webkit-scrollbar-thumb {
+            background: rgb(0%, 49%, 95%)!important;
+            border-radius: 5px;
+        }
+      
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background:
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: lightgray;
+            border-radius: 5px;
+        }
+</style>
 
 {% endblock content %}
