@@ -1,6 +1,6 @@
 import os
 from twilio.rest import Client
-from .models import (Patient, Message)
+from .models import (Patient, Message, UserData)
 from dateutil.parser import parse
 
 def get_prepared_string(s):
@@ -20,6 +20,8 @@ class RecieveSend:
     def __init__(self):
         #self.full_reset()
         self.clear_messages()
+        patient = Patient.objects.all()[0]
+        self.gather_user_data(patient)
         values = open("C:\\dev\\Hackathon\\RoboHacks\\virus-valet\\secrets.hidden", "r").read().split()
         self.sid = values[0]
         self.token = values[1]
@@ -53,6 +55,8 @@ class RecieveSend:
 
     def clear_messages(self):
         for i in Message.objects.all():
+            i.delete()
+        for i in UserData.objects.all():
             i.delete()
 
     def print_messages(self):
@@ -133,5 +137,38 @@ class RecieveSend:
                 self.save_messages({"Body": i, "From": str(patient.phone_number)}, is_patient=False, is_question=True, real_request=False)
                 return
         return
+
+    def gather_user_data(self, patient):
+        print(patient)
+        data = UserData.objects.filter(patient = patient)
+        if len(data):
+            return data[0]
+        else:
+            messages = Message.objects.filter(patient = patient)
+            if not len(messages):
+                data = UserData(patient=patient)
+                data.save()
+                return data
+            question_answers = {Message.objects.get(id = i.is_answer).message: i.message for i in messages if i.is_answer > 0}
+            find_responses_related = lambda x : [question_answers.get(i) for i in question_answers if x in i]
+            is_symptomatic = find_responses_related("symptoms in the past 14 days")[0].lower() in ["yes", "y"]
+            attending_public = find_responses_related("Where could you have acquired your infection in")[0].lower() in ["yes", "y"]
+            not_isolating = find_responses_related("Have you started self-isolating")[0].lower() in ["n", "no"]
+            print(is_symptomatic, attending_public, not_isolating)
+            data = UserData(patient = patient, is_symptomatic = is_symptomatic, attending_public = attending_public, not_isolating = not_isolating)
+            data.save()
+            return data
+
+
+
+
+
+            '''   for patient in patients:
+        if patient.is_symptomatic and (patient.attended_school_or_workplace or patient.not_isolating):
+            patient["img"] = img_map["red"]
+        elif patient.is_symptomatic or patient.attended_school_or_workplace or patient.not_isolating:
+            patient["img"] = img_map["yellow"]
+        else:
+            patient["img"] = img_map["green"]'''
 
 
