@@ -23,6 +23,12 @@ from .models import (
 
 inter = RecieveSend()
 
+img_map = {
+    "red": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Red_exclamation_mark.svg",
+    "green": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Checkmark_green.svg",
+    "yellow": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Traffic_cone.svg",
+}
+
 
 #automated message functions
 def greeting(patient):
@@ -34,9 +40,15 @@ def greeting(patient):
 
 
 def nurse_dashboard_view(request):
-    context = {}
-    context["patients"] = Patient.objects.all()
-    context["test"] = "hello world"
+    patients = Patient.objects.all().values()
+
+    for patient in patients:
+        patient["img"] = img_map["red"]
+
+    context = {
+        "patients": patients,
+        "test": "hello world"
+    }
     return render(request, "nurse_dashboard_template.html", context)
 
 def patient_detail_view(request, patient_id):
