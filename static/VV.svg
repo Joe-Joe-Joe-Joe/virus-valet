@@ -21,7 +21,6 @@
 </clipPath>
 </defs>
 <g id="surface1">
-<path style=" stroke:none;fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;" d="M 150.324219 46.546875 L 279.964844 46.546875 L 279.964844 248.289062 L 150.324219 248.289062 Z M 150.324219 46.546875 "/>
 <g clip-path="url(#clip1)" clip-rule="nonzero">
 <path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 216.480469 276.632812 L 241.773438 215.285156 L 176.535156 57.070312 L 125.9375 57.070312 L 216.480469 276.632812 "/>
 </g>
