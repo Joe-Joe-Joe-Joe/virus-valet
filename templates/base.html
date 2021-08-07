@@ -22,8 +22,8 @@
         <a href = "{% url 'nurse_dashboard_url' %}"><i class="fa fa-binoculars"></i></a>
         <a href = "{% url 'patient_form_url' %}"><i class="fa fa-plus"></i></a>
     </div><br>
-
-    <h1 style = "text-align: center;"><img height=100 src=""/>VirusValet</h1>
+    {% load static %}
+    <h1 style = "text-align: center;"><img height=100 src="{% static 'VV.svg' %}"/>VirusValet</h1>
 
     <div id="content" class="container card">
         {% block content %}
@@ -39,6 +39,27 @@
 
 
 <style>
+/* Classes of message cards */
+
+:root {
+  --baseblue: rgb(18.818665%,63.139343%,74.508667%);
+}
+
+.Bot {
+ background-color: lightgray!important;
+}
+
+.Patient {
+  background-color: white!important;
+}
+
+.Nurse {
+  background-color: var(--baseblue)!important;
+}
+
+
+
+
 .fa {
     font-size: 200%;
 }
@@ -150,7 +171,7 @@ header.is-visible {
 
 /* Navbar container */
 .navb {
-  background-color: #0d6efd;
+  background-color: var(--baseblue)!important;
   font-family: Arial;
   display: flex;
   align-items: center;

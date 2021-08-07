@@ -21,7 +21,7 @@
     <div class='message-inbox' style='max-height:40vh; overflow: scroll;'>
         <ul>
             {% for message in patient_messages %}
-            <div class="card">
+            <div class="card {{ message.name }}">
                 <div class="card-body">
                     <b><i class="fa fa-{{ message.icon }}"></i> {{message.name}}:</b> {{ message.date_created }}
                     <p class="card-text" style='font-weight: 900;'>{{message.message}}</p>
