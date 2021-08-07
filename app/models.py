@@ -2,6 +2,8 @@ from django.db import models
 
 from phonenumber_field.modelfields import PhoneNumberField
 
+
+
 class Patient(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -13,7 +15,15 @@ class Patient(models.Model):
     dying = models.BooleanField(default = False)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name} MODEL"
+
+
+class UserData(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    is_symptomatic = models.BooleanField(default = False)
+    not_isolating = models.BooleanField(default = False)
+    attending_public = models.BooleanField(default = False)
+
 
 class Message(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)

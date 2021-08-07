@@ -39,11 +39,19 @@ def greeting(patient):
 
 
 
+
+
 def nurse_dashboard_view(request):
     patients = Patient.objects.all().values()
 
     for patient in patients:
-        patient["img"] = img_map["red"]
+        data = inter.gather_user_data(Patient.objects.filter(phone_number = patient.get("phone_number"))[0])
+        if data.is_symptomatic and (data.attending_public or data.not_isolating):
+            patient["img"] = img_map["red"]
+        elif data.is_symptomatic or data.attending_public or data.not_isolating:
+            patient["img"] = img_map["yellow"]
+        else:
+            patient["img"] = img_map["green"]
 
     context = {
         "patients": patients,
