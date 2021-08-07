@@ -21,6 +21,8 @@ from .models import (
     Message
 )
 
+from time import sleep
+
 inter = RecieveSend()
 
 img_map = {
@@ -129,3 +131,11 @@ def patient_form_view(request):
     context['form'] = form
     return render(request, "patient_form_template.html", context)
 
+def refresh_view(request):
+    if request.method == "GET":
+        print("entering while loop")
+        num_messages = Message.objects.count()
+        while True:
+            if Message.objects.count() != num_messages:
+                return HttpResponse("refresh")
+            sleep(1)

@@ -41,7 +41,6 @@ $.ajax({
 	url: window.location.href.split('/')[1] + "/refresh",
 	type: "GET",
 	success: function() {
-		// maybe $('#hello').load(...) instead
 		window.location.reload(false);
 	},
 	failure: function() {
