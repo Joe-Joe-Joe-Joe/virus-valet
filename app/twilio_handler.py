@@ -21,7 +21,7 @@ class RecieveSend:
         #self.full_reset()
         #self.clear_messages()
 
-        values = open("C:\\dev\\Hackathon\\RoboHacks\\virus-valet\\secrets.hidden", "r").read().split()
+        values = open("/home/blueuser/PycharmProjects/virus-valet/secrets.hidden", "r").read().split()
         self.sid = values[0]
         self.token = values[1]
         self.client = Client(self.sid, self.token)

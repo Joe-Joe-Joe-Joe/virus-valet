@@ -1,13 +1,32 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 {% block content %}
-<h1>Patient {{ patient_id }}</h1>
+<h3>New Patient</h3>
 <div>
     <form action="" method="post">
         {% csrf_token %}
-        {{ form|crispy }}
-        <input type="submit" type="pass" value="Create Patient" class="btn btn-lg btn-success" />
+      <div class="mb-3">
+        <label for="first_name" class="form-label">First Name</label>
+          <input type="text" id="first_name" name = "first_name" class="form-control"/>
+      </div>
+      <div class="mb-3">
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" id="last_name" name = "last_name" class="form-control"/>
+      </div>
+      <div class="mb-3">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input type="tel" id="phone_number" name = "phone_number" pattern="+[0-9]{10}" class="form-control"/>
+        <div id="phone_number_help" class="form-text">Format with area code like +15197787637</div>
+      </div>
+      <div class="mb-3">
+        <label for="date_of_birth" class="form-label">Date Of Birth</label>
+        <input type="date" id="date_of_birth" name="date_of_birth" class="form-control"/>
+      </div>
+      <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn btn-lg btn-primary" style="width: 100%;"><i class="fa fa-plus"></i></button>
     </form>
 </div>
 {% endblock content %}
