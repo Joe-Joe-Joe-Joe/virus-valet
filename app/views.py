@@ -65,7 +65,6 @@ def patient_detail_view(request, patient_id):
     patient = Patient.objects.get(id=patient_id)
     if request.method == 'POST':
         form = AddMessageForm(request.POST)
-        print(form)
         if form.is_valid():
             message = Message(
                 patient=patient,
@@ -140,7 +139,6 @@ def patient_form_view(request):
 
 def refresh_view(request):
     if request.method == "GET":
-        print("entering while loop")
         num_messages = Message.objects.count()
         while True:
             if Message.objects.count() != num_messages:
