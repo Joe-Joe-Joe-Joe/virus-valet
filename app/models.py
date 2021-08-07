@@ -9,6 +9,9 @@ class Patient(models.Model):
     date_of_birth = models.DateField()
     address = models.CharField(max_length=50)
 
+    finished_chat = models.BooleanField(default = False)
+    dying = models.BooleanField(default = False)
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
