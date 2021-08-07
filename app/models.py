@@ -10,9 +10,12 @@ class Patient(models.Model):
     phone_number = PhoneNumberField()
     date_of_birth = models.DateField()
     address = models.CharField(max_length=50)
+    asked_about_symptoms = models.BooleanField(default=False)
 
-    finished_chat = models.BooleanField(default = False)
-    dying = models.BooleanField(default = False)
+    risk_to_self = models.IntegerField(default = -1)
+    risk_to_others = models.IntegerField(default = -1)
+
+
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} MODEL"

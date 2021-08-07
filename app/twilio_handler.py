@@ -9,9 +9,17 @@ def get_prepared_string(s):
 def is_yes_or_no(s):
     return get_prepared_string(s) in ['yes', 'no']
 
+def isint(x):
+    try:
+        int(x)
+        return True
+    except:
+        return False
+
 def parse_date(s):
     try:
-        parse(s)
+        #parse(s)
+        s
         return True
     except ValueError:
         return False
@@ -21,7 +29,7 @@ class RecieveSend:
         #self.full_reset()
         #self.clear_messages()
 
-        values = open("/home/blueuser/PycharmProjects/virus-valet/secrets.hidden", "r").read().split()
+        values = open("C:\\dev\\Hackathon\\RoboHacks\\virus-valet\\secrets.hidden", "r").read().split()
         self.sid = values[0]
         self.token = values[1]
         self.client = Client(self.sid, self.token)
@@ -44,6 +52,25 @@ class RecieveSend:
                 lambda answer, patient: is_yes_or_no(answer),
             "If so, when did you start self-isolating?":
                 lambda answer, patient: parse_date(answer),
+        }
+        self.symptom_questions = {
+            'How old are you?' : lambda x, y : isint(x),
+            'Have you been experiencing a dry cough?': lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing a sour throat': lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing weakness?' : lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing a breathing problem?' : lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing drowsiness?' : lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing a pain in your chest?' : lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing travel history to infected countries?' : lambda x, y : is_yes_or_no(x),
+            'Do you have diabetes?': lambda x, y : is_yes_or_no(x),
+            'Do you have heart disease?' : lambda x, y : is_yes_or_no(x),
+            'Do you have lung disease?': lambda x, y : is_yes_or_no(x),
+            'Have you had a stroke or do you have reduced immunity?': lambda x, y : is_yes_or_no(x),
+            'Have your symptoms progressed?': lambda x, y : is_yes_or_no(x),
+            'Do you have high blood pressure?': lambda x, y : is_yes_or_no(x),
+            'Do you have kidney disease?': lambda x, y : is_yes_or_no(x),
+            'Have you recently had a change in appetite?': lambda x, y : is_yes_or_no(x),
+            'Have you had a loss of sense of smell?': lambda x, y : is_yes_or_no(x),
         }
 
     def full_reset(self):
@@ -72,20 +99,23 @@ class RecieveSend:
             to=number_to
         )
 
-    def check_answer(self, patient, body):
+    def check_answer(self, patient, body, question_set = 0):
         messages = Message.objects.filter(patient = patient)
         questions = [i for i in messages if i.is_question]
         if len(questions):
             questions.reverse()
             for current_question in questions:
-                checking_function = self.questions.get(current_question.message)
+                if not patient.asked_about_symptoms:
+                    checking_function = self.questions.get(current_question.message)
+                else:
+                    checking_function = self.symptom_questions.get(current_question.message)
                 if checking_function and checking_function(body, patient):
                     return current_question.id
             return -1
         return -1
 
 
-    def save_messages(self, request, is_patient, is_nurse = False, is_question = False, real_request = True):
+    def save_messages(self, request, is_patient, is_nurse = False, is_question = False, real_request = True, data_set = 0):
         if real_request:
             pull = lambda x : request.POST.get(x)
         else:
@@ -93,40 +123,85 @@ class RecieveSend:
         body = pull("Body")
         phone_number = pull("From")
 
-        print()
-        print("Saved:", body, phone_number)
-        print()
+        # print()
+        # print("Saved:", body, phone_number)
+        # print()
         try:
             patient = Patient.objects.filter(phone_number = phone_number)[0]
         except:
-            print("patients:", Patient.objects.filter(phone_number = phone_number))
+            pass
         messages = list(Message.objects.filter(patient = patient))
         nurse_questions = [i for i in messages if i.is_question and i.sent_by_nurse]
 
 
         answer_ids = [i.is_answer for i in Message.objects.filter(patient = patient) if i.is_answer > 0]
-        is_answer = self.check_answer(patient, body) # and is_patient and not is_question
+        is_answer = self.check_answer(patient, body, data_set) # and is_patient and not is_question
         if not is_nurse and is_answer in answer_ids:
             is_answer = -1
         if is_nurse:
             is_answer = -1
         if len(messages) and len(nurse_questions) and messages[-1].id == nurse_questions[-1].id:
             is_answer = nurse_questions[-1].id
-            print("this is a nurse answer")
         message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer, sent_by_nurse = is_nurse)
         message.save()
         return is_answer
 
+    def ask_symptoms(self, patient, is_answer = 1):
+        #if they have symptoms
+        print('mother fucker')
+        patient.asked_about_symptoms = True
+        patient.save()
+        data = self.gather_user_data(patient)
+        if not data.is_symptomatic:
+            return
+        print("sympomatic")
+        #else ask
+        messages = Message.objects.filter(patient=patient)
+        bot_questions = [i.message for i in messages if i.is_question and not i.sent_by_nurse and i.message not in self.questions.keys()]
+        nurse_questions = [i.message for i in messages if i.is_question and i.sent_by_nurse]
+        questions = [i.message for i in messages if i.is_question and i not in self.questions.keys()]
+        if len(messages) and len(bot_questions) and is_answer < 0:
+            if bot_questions[-1] != list(self.symptom_questions.keys())[-1]:
+                print("shitter")
+                self.send_message(f"Sorry, but that answer wasn't recognized.\n\n{bot_questions[-1]}",
+                                  str(patient.phone_number))
+                self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}",
+                                    "From": str(patient.phone_number)}, is_patient=False, real_request=False, data_set=1)
+                return
+            else:
+                print("done")
+                return
+        question_ids = [i.id for i in messages if i.is_question]
+        answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
+        for i in self.symptom_questions:
+            if i not in questions:
+                self.send_message(i, str(patient.phone_number))
+                self.save_messages({"Body": i, "From": str(patient.phone_number)}, is_patient=False, is_question=True,
+                                   real_request=False, data_set=1)
+                return
+        return
+
 
     def send_questions(self, patient, is_answer = 1):
+        if patient.asked_about_symptoms:
+            self.ask_symptoms(patient, is_answer)
+            return
         messages = Message.objects.filter(patient = patient)
         bot_questions = [i.message for i in messages if i.is_question and not i.sent_by_nurse]
+        if len(bot_questions) and bot_questions[-1] in self.symptom_questions.keys() and bot_questions[-1] != list(self.symptom_questions.keys())[-1]:
+            self.ask_symptoms(patient, is_answer)
+            return
         nurse_questions = [i.message for i in messages if i.is_question and i.sent_by_nurse]
         questions = [i.message for i in messages if i.is_question]
-        if len(messages) and len(bot_questions) and is_answer < 0 and bot_questions[-1] != list(self.questions.keys())[-1]:
-            self.send_message(f"Sorry, but that answer wasn't recognized.\n\n{bot_questions[-1]}", str(patient.phone_number))
-            self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", "From": str(patient.phone_number)}, is_patient=False, real_request=False)
-            return
+        if len(messages) and len(bot_questions) and is_answer < 0:
+            if bot_questions[-1] != list(self.questions.keys())[-1]:
+                self.send_message(f"Sorry, but that answer wasn't recognized.\n\n{bot_questions[-1]}", str(patient.phone_number))
+                self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", "From": str(patient.phone_number)}, is_patient=False, real_request=False)
+                return
+            else:
+                self.ask_symptoms(patient, is_answer)
+                return
+
         question_ids = [i.id for i in messages if i.is_question]
         answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
         if len(question_ids) != len(answer_ids):
@@ -141,16 +216,10 @@ class RecieveSend:
     def gather_user_data(self, patient):
         data = UserData.objects.filter(patient = patient)
         if len(data) and False:
-            print(data[0].is_symptomatic, data[0].attending_public, data[0].not_isolating)
             return data[0]
         else:
-            print("doing")
-            print(patient)
-            print(patient.phone_number)
             messages = Message.objects.filter(patient = patient)
-            print(messages)
             if not len(messages):
-                print(len(messages))
                 data = UserData(patient=patient)
                 data.save()
                 return data
@@ -165,22 +234,35 @@ class RecieveSend:
             is_symptomatic = find_responses_related("symptoms in the past 14 days", ['yes', 'y'])
             attending_public = find_responses_related("Where could you have acquired your infection in", ['yes', 'y'])
             not_isolating = find_responses_related("Have you started self-isolating", ["n", "no"])
-            print("symptoms")
-            print(is_symptomatic, attending_public, not_isolating)
             data = UserData(patient = patient, is_symptomatic = is_symptomatic, attending_public = attending_public, not_isolating = not_isolating)
             data.save()
             return data
 
+    def yes_check(self, x):
+        if x in ['yes', 'y']:
+            return 1
+        return 0
+
+    def gather_user_symptoms(self, patient):
+        data = self.gather_user_data(patient)
+        if not data.is_symptomatic:
+            return
+        messages = Message.objects.filter(patient = patient)
+        answers = [i for i in messages if i.is_answer > 0]
+        questions_answers = [i.message for i in answers if Message.objects.get(id = i.is_answer).message in self.symptom_questions]
+
+        def find_responses_related(x, check_list):
+            try:
+                values = [question_answers.get(i) for i in question_answers if x in i][0].lower()
+                return values in check_list
+            except:
+                return False
+        data = [int(questions_answers[0])] + [self.yes_check(i) for i in questions_answers[1:]]
+        print(data)
 
 
 
 
-            '''   for patient in patients:
-        if patient.is_symptomatic and (patient.attended_school_or_workplace or patient.not_isolating):
-            patient["img"] = img_map["red"]
-        elif patient.is_symptomatic or patient.attended_school_or_workplace or patient.not_isolating:
-            patient["img"] = img_map["yellow"]
-        else:
-            patient["img"] = img_map["green"]'''
+
 
 
