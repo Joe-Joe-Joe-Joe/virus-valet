@@ -79,7 +79,7 @@ def patient_detail_view(request, patient_id):
         else:
             messages.add_message(request, messages.ERROR, 'Please Try Again')
         return HttpResponseRedirect(reverse('patient_detail_url', args=[patient.id]))
-    raw_messages = Message.objects.filter(patient=patient).order_by('-date_created')
+    raw_messages = Message.objects.filter(patient=patient).order_by('date_created')
 
     patient_messages = []
     for message in raw_messages:

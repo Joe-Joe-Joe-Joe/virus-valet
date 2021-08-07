@@ -18,12 +18,28 @@
         {% endfor %}
     </div>
     {% endif %}
-    <div class = "navb">
+    <!-- <div class = "navb">
+        <object class = "" data="{% static 'VV.svg' %}" width="50"> </object>
         <a href = "{% url 'nurse_dashboard_url' %}"><i class="fa fa-binoculars"></i></a>
         <a href = "{% url 'patient_form_url' %}"><i class="fa fa-plus"></i></a>
-    </div><br>
-    {% load static %}
-    <h1 style = "text-align: center;"><img height=100 src="{% static 'VV.svg' %}"/>VirusValet</h1>
+    </div><br> -->
+
+    <nav class="navbar navbar-expand-sm justify-content-center align-items-start navb">
+    <div class="navbar-collapse collapse" id="navbar">
+        <ul class="navbar-nav justify-content-center">
+            <li class="nav-item">
+              <a style = "margin-left: 4em;" href = "{% url 'nurse_dashboard_url' %}"><i class="fa fa-binoculars nav-link navi"></i></a>
+            </li>
+            <li class="nav-item">
+                <a style = "margin-left: 1.2em;" href = "{% url 'patient_form_url' %}"><i class="fa fa-plus nav-link navi"></i></a>
+            </li>
+        </ul>
+    </div>
+    <span class="navbar-brand position-absolute mx-0"><object class = "" data="{% static 'VV.svg' %}" width="50"> </object></span>
+    <br>
+    <br><br>
+</nav>
+
 
     <div id="content" class="container card">
         {% block content %}
@@ -54,7 +70,7 @@ $.ajax({
 /* Classes of message cards */
 
 :root {
-  --baseblue: rgb(18.818665%,63.139343%,74.508667%);
+  --baseblue: #5390D9;
 }
 
 .Bot {
@@ -67,6 +83,10 @@ $.ajax({
 
 .Nurse {
   background-color: var(--baseblue)!important;
+}
+
+.symbol {
+  color: var(--baseblue);
 }
 
 .fa {
@@ -180,26 +200,21 @@ header.is-visible {
 
 /* Navbar container */
 .navb {
-  background-color: var(--baseblue)!important;
-  font-family: Arial;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  background-color: white!important;
 }
 
 /* Links inside the navbar */
 .navb a {
-  float: none;
-  color: white;
-  text-align: center;
-  padding: 1.2em;
+
+}
+
+.navi {
   text-decoration: none;
 }
 
 
-.navb a:hover {
-  background-color: red;
+.navi:hover {
+  background-color: lightgray;
 }
 
 .container {
