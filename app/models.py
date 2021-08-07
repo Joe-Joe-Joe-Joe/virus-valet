@@ -19,6 +19,7 @@ class Message(models.Model):
     is_question = models.BooleanField()
     is_answer = models.IntegerField()
     sent_by_nurse = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.patient.first_name} {self.message[:20]} patient:{self.is_patient} question:{self.is_question} answer:{self.is_answer}"

@@ -7,6 +7,8 @@ from django.shortcuts import (
 )
 from django.contrib import messages
 
+from django.http import HttpResponseRedirect
+
 from .twilio_handler import RecieveSend
 
 from .forms import (
@@ -39,7 +41,52 @@ def nurse_dashboard_view(request):
 
 def patient_detail_view(request, patient_id):
     patient = Patient.objects.get(id=patient_id)
-    context = {"patient": patient}
+    if request.method == 'POST':
+        form = AddMessageForm(request.POST)
+        print(form)
+        if form.is_valid():
+            message = Message(
+                patient=patient,
+                message=form.cleaned_data.get('message'),
+                is_patient=False,
+                sent_by_nurse=True,
+                is_question=True,
+            )
+            inter.send_message(message.message, message.patient.phone_number.as_e164)
+            inter.save_messages({"Body": message.message, "From": str(message.patient.phone_number)}, is_patient=False, is_nurse=True, real_request=False)
+            messages.add_message(request, messages.SUCCESS, 'Message sent')
+        else:
+            messages.add_message(request, messages.ERROR, 'Please Try Again')
+        return HttpResponseRedirect(reverse('patient_detail_url', args=[patient.id]))
+    raw_messages = Message.objects.filter(patient=patient).order_by('-date_created')
+
+    patient_messages = []
+    for message in raw_messages:
+        name = ""
+        icon=""
+        if message.is_patient:
+            name = "Patient"
+            icon = "users"
+
+        elif message.sent_by_nurse:
+            name = "Nurse"
+            icon = "medkit"
+
+        else:
+            name = "Bot"
+            icon = "cog"
+
+        patient_messages.append({
+            "name": name,
+            "icon": icon,
+            "message": message.message,
+            "date": message.date_created.strftime("%Y/%m/%d %H:%M"),
+        })
+
+    context = {
+        "patient": patient,
+        "patient_messages": patient_messages,
+    }
     return render(request, "patient_details_template.html", context)
 
 @csrf_exempt
@@ -68,24 +115,4 @@ def patient_form_view(request):
     context = {}
     context['form'] = form
     return render(request, "patient_form_template.html", context)
-  
-def add_new_message_form_view(request, patient_id):
-    patient = Patient.objects.get(id = patient_id)
-    if request.method == 'POST':
-        form = AddMessageForm(request.POST)
-        if form.is_valid():
-            message = Message(
-                patient = patient,
-                message = form.cleaned_data.get('message'),
-                is_patient = False,
-                sent_by_nurse = True,
-            )
 
-            inter.send_message(message.message, message.patient.phone_number.as_e164)
-            inter.save_messages({"Body": message.message, "From" : str(message.patient.phone_number)}, is_patient=False, is_nurse=True, is_question=False, real_request=False)
-            messages.add_message(request, messages.SUCCESS, 'Message sent')
-        else:
-            messages.add_message(request, messages.ERROR, 'Please Try Again')
-    form = AddMessageForm()
-    context = {'form': form, "patient": patient}
-    return render(request, "add_new_message_form_template.html", context)

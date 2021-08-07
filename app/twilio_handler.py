@@ -5,7 +5,7 @@ from .models import (Patient, Message)
 
 class RecieveSend:
     def __init__(self):
-
+        #self.full_reset()
         values = open("secrets.hidden", "r").read().split()
         self.sid = values[0]
         self.token = values[1]
@@ -79,16 +79,14 @@ class RecieveSend:
     def send_questions(self, patient, is_answer = 1):
         messages = Message.objects.filter(patient = patient)
         questions = [i.message for i in messages if i.is_question]
-
-        if is_answer < 0:
+        if is_answer < 0 and questions[-1] != list(self.questions.keys())[-1]:
             self.send_message(f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", str(patient.phone_number))
-            self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", "From": self.default_number}, is_patient=False, real_request=False)
+            self.save_messages({"Body": f"Sorry, but that answer wasn't recognized.\n\n{questions[-1]}", "From": str(patient.phone_number)}, is_patient=False, real_request=False)
             return
         question_ids = [i.id for i in messages if i.is_question]
         answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
-        print(question_ids, answer_ids)
         if len(question_ids) != len(answer_ids):
-            return
+            returns
         for i in self.questions:
             if i not in questions:
                 self.send_message(i, str(patient.phone_number))
