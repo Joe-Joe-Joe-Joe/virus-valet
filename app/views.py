@@ -80,7 +80,7 @@ def patient_detail_view(request, patient_id):
         else:
             messages.add_message(request, messages.ERROR, 'Please Try Again')
         return HttpResponseRedirect(reverse('patient_detail_url', args=[patient.id]))
-    raw_messages = Message.objects.filter(patient=patient).order_by('-date_created')
+    raw_messages = Message.objects.filter(patient=patient).order_by('date_created')
 
     patient_messages = []
     for message in raw_messages:
@@ -117,7 +117,6 @@ def sms_view(request):
     patient = Patient.objects.filter(phone_number = request.POST.get("From"))[0]
     inter.send_questions(patient, is_answer)
     #inter.send_questions()
-    #TODO refresh all dashboard/chat pages of users
     return HttpResponse("", content_type='text/xml')
     
 def patient_form_view(request):
