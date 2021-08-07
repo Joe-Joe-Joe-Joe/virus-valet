@@ -1,7 +1,20 @@
 import os
 from twilio.rest import Client
 from .models import (Patient, Message)
+from dateutil.parser import parse
 
+def get_prepared_string(s):
+    return s.casefold().strip()
+
+def is_yes_or_no(s):
+    return get_prepared_string(s) in ['yes', 'no']
+
+def parse_date(s):
+    try:
+        parse(s)
+        return True
+    except ValueError:
+        return False
 
 class RecieveSend:
     def __init__(self):
@@ -12,9 +25,23 @@ class RecieveSend:
         self.client = Client(self.sid, self.token)
         self.default_number = "+12262708145"
         self.questions = {
-            "How are you?" : ["good", "bad", "alright", "shitty"],
-            "What's up?" : ["nothing", "yes"],
-            "Are you sad?" : ["yes", "no"]
+            "What is your address?" :
+                lambda answer, patient: get_prepared_string(answer) == patient.address,
+            "What is your date of birth?" :
+                lambda answer, patient: get_prepared_string(answer) == str(patient.date_of_birth)
+            ,
+            "Have you suffered from any of the following symptoms in the past 14 days?\nFever or chills\nCough\nShortness of breath or difficulty breathing\nFatigue\nMuscle or body aches\nHeadache\nNew loss of taste or smell\nSore throat\nCongestion or runny nose\nNausea or vomiting\nDiarrhea":
+                lambda answer, patient: is_yes_or_no(answer),
+            "Where could you have acquired your infection in the past 14 days?\nTraveling to a different country\nAttending a party\netc.":
+                lambda answer, patient: True,
+            "Do you attend school or a workplace?":
+                lambda answer, patient: is_yes_or_no(answer),
+            "If yeas, What is your school or workplaces name?":
+                lambda answer, patient: True,
+            "Have you started self-isolating?":
+                lambda answer, patient: is_yes_or_no(answer),
+            "If so, when did you start self-isolating?":
+                lambda answer, patient: parse_date(answer),
         }
 
     def full_reset(self):
@@ -47,8 +74,7 @@ class RecieveSend:
         if len(questions):
             questions.reverse()
             for current_question in questions:
-                possible_question_answers = self.questions.get(current_question.message, [])
-                if body.lower() in possible_question_answers:
+                if self.questions.get(current_question)(current_question.message, patient):
                     return current_question.id
             return -1
         return -1
