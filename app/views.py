@@ -22,6 +22,7 @@ from .models import (
 )
 
 from time import sleep
+from .deep_learning import predict
 
 inter = RecieveSend()
 
@@ -41,14 +42,20 @@ def greeting(patient):
 
 
 
-def predict(values):
-    import random
-    return random.choice([0, 1, 2])
+def resend(request):
+    me =Patient.objects.filter(phone_number = "+12265678330")[0]
+    me.asked_about_symptoms = True
+    me.save()
+    inter.send_questions(patient=me)
+    print("resending")
+    return HttpResponse("Okay then", content_type='text/xml')
 
 def nurse_dashboard_view(request):
+    for i in Patient.objects.all():
+        i.risk_to_self = -1
+        i.save()
     lacking_others = Patient.objects.filter(risk_to_others = -1)
     lacking_self = Patient.objects.filter(risk_to_self= -1)
-
     for i in lacking_others:
         data = inter.gather_user_data(i)
         if data.is_symptomatic and (data.attending_public or data.not_isolating):
@@ -61,7 +68,13 @@ def nurse_dashboard_view(request):
 
 
     for i in lacking_self:
-        i.risk_to_self = -1  # predict([1, 2, 3])
+        symptoms = inter.gather_user_symptoms(i)
+        print(symptoms)
+        if symptoms == -1:
+            i.risk_to_self = 2
+        else:
+            i.risk_to_self = predict(inter.gather_user_symptoms(i))
+            print("SOMETHING IS HERE", predict(inter.gather_user_symptoms(i)))
         i.save()
 
     patients = Patient.objects.all().order_by('risk_to_self').order_by('risk_to_others').values()
@@ -72,9 +85,8 @@ def nurse_dashboard_view(request):
     }
 
     for patient in patients:
-        print(patient['risk_to_others'])
-        patient['risk_to_selfs'] = img_map[num_to_color[patient['risk_to_others']]]
-
+        patient['risk_to_selfs'] = img_map[num_to_color[patient['risk_to_self']]]
+        patient['risk_to_other'] = img_map[num_to_color[patient['risk_to_others']]]
 
     context = {
         "patients": patients,
@@ -136,7 +148,6 @@ def sms_view(request):
     is_answer = inter.save_messages(request, True)
     patient = Patient.objects.filter(phone_number = request.POST.get("From"))[0]
     inter.send_questions(patient, is_answer)
-    print(inter.gather_user_symptoms(patient))
     #inter.send_questions()
     return HttpResponse("", content_type='text/xml')
     

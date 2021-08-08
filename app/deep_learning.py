@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-model = tf.keras.models.load_model('model')
+model = tf.keras.models.load_model('C:\\dev\\Hackathon\\RoboHacks\\virus-valet\\app\\model')
 
 """
 data for preprocessing and postprocesing
@@ -32,11 +32,11 @@ def predict_severity(inp):
     this_pred = model.predict(tf.reshape(list(inp), (1, 17)))[0][0]
     category = -1
     if this_pred < min_pred + category_size:
-        category = 0
+        category = 2
     elif this_pred >= min_pred + category_size and this_pred <= max_pred - category_size:
         category = 1
     else:
-        category = 2
+        category = 0
     return category
 
 

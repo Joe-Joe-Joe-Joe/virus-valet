@@ -35,6 +35,12 @@ class RecieveSend:
         self.client = Client(self.sid, self.token)
         self.default_number = "+12262708145"
         self.questions = {
+            "Have you suffered from any of the following symptoms in the past 14 days?\nFever or chills\nCough\nShortness of breath or difficulty breathing\nFatigue\nMuscle or body aches\nHeadache\nNew loss of taste or smell\nSore throat\nCongestion or runny nose\nNausea or vomiting\nDiarrhea":
+                lambda answer, patient: is_yes_or_no(answer),
+            "Where could you have acquired your infection in the past 14 days?\nTraveling to a different country\nAttending a party\netc.":
+                lambda answer, patient: True,
+        }
+        self.questions2 = {
             "What is your address?" :
                 lambda answer, patient: get_prepared_string(answer) == get_prepared_string(patient.address),
             "What is your date of birth?" :
@@ -84,6 +90,11 @@ class RecieveSend:
             i.delete()
         for i in UserData.objects.all():
             i.delete()
+        for i in Patient.objects.all():
+            i.asked_about_symptoms = False
+            i.save()
+
+
 
     def print_messages(self):
         for i in Message.objects.all():
@@ -144,10 +155,15 @@ class RecieveSend:
             is_answer = nurse_questions[-1].id
         message = Message(patient = patient, message = body, is_patient = is_patient, is_question = is_question, is_answer = is_answer, sent_by_nurse = is_nurse)
         message.save()
+        questions = [i.message for i in messages if i.is_question]
+        if is_answer > 0 and len(questions) and questions[-1] == list(self.questions.keys())[-1]:
+            print("last question ask for the symptoms maybe")
+            #self.ask_symptoms(patient, is_answer)
         return is_answer
 
     def ask_symptoms(self, patient, is_answer = 1):
         #if they have symptoms
+
         print('mother fucker')
         patient.asked_about_symptoms = True
         patient.save()
@@ -188,9 +204,9 @@ class RecieveSend:
             return
         messages = Message.objects.filter(patient = patient)
         bot_questions = [i.message for i in messages if i.is_question and not i.sent_by_nurse]
-        if len(bot_questions) and bot_questions[-1] in self.symptom_questions.keys() and bot_questions[-1] != list(self.symptom_questions.keys())[-1]:
-            self.ask_symptoms(patient, is_answer)
-            return
+        # if len(bot_questions) and bot_questions[-1] in self.symptom_questions.keys() and bot_questions[-1] != list(self.symptom_questions.keys())[-1]:
+        #     self.ask_symptoms(patient, is_answer)
+        #     return
         nurse_questions = [i.message for i in messages if i.is_question and i.sent_by_nurse]
         questions = [i.message for i in messages if i.is_question]
         if len(messages) and len(bot_questions) and is_answer < 0:
@@ -205,6 +221,7 @@ class RecieveSend:
         question_ids = [i.id for i in messages if i.is_question]
         answer_ids = [i.is_answer for i in messages if i.is_answer > 0]
         if len(question_ids) != len(answer_ids):
+            self.ask_symptoms(patient, is_answer)
             return
         for i in self.questions:
             if i not in questions:
@@ -234,7 +251,7 @@ class RecieveSend:
             is_symptomatic = find_responses_related("symptoms in the past 14 days", ['yes', 'y'])
             attending_public = find_responses_related("Where could you have acquired your infection in", ['yes', 'y'])
             not_isolating = find_responses_related("Have you started self-isolating", ["n", "no"])
-            data = UserData(patient = patient, is_symptomatic = is_symptomatic, attending_public = attending_public, not_isolating = not_isolating)
+            data = UserData(patient = patient, is_symptomatic = True, attending_public = attending_public, not_isolating = not_isolating) #FIX THIS LINE FIX THIS LINE FIX THIS LINE
             data.save()
             return data
 
@@ -246,7 +263,7 @@ class RecieveSend:
     def gather_user_symptoms(self, patient):
         data = self.gather_user_data(patient)
         if not data.is_symptomatic:
-            return
+            return -1
         messages = Message.objects.filter(patient = patient)
         answers = [i for i in messages if i.is_answer > 0]
         questions_answers = [i.message for i in answers if Message.objects.get(id = i.is_answer).message in self.symptom_questions]
@@ -258,7 +275,7 @@ class RecieveSend:
             except:
                 return False
         data = [int(questions_answers[0])] + [self.yes_check(i) for i in questions_answers[1:]]
-        print(data)
+        return data
 
 
 

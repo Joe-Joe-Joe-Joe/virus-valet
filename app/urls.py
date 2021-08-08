@@ -5,11 +5,13 @@ from .views import (
     patient_detail_view,
     sms_view,
     patient_form_view,
-    refresh_view
+    refresh_view,
+    resend
 )
 
 urlpatterns = [
     path('', nurse_dashboard_view, name='nurse_dashboard_url'),
+    path('resend/', resend, name = "resend"),
     path('sms/', sms_view, name = 'sms_url'),
     path('dashboard/', nurse_dashboard_view, name='nurse_dashboard_url'),
     path('patient/<int:patient_id>/', patient_detail_view, name='patient_detail_url'),
