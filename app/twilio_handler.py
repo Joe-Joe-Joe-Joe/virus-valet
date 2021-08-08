@@ -57,7 +57,7 @@ class RecieveSend:
             'How old are you?' : lambda x, y : isint(x),
             'Have you been experiencing a dry cough?': lambda x, y : is_yes_or_no(x),
             'Have you been experiencing a sore throat': lambda x, y : is_yes_or_no(x),
-            'Have you been experiencing weakness?' : lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing sudden or unexpected weakness?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing a breathing problem?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing drowsiness?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing a pain in your chest?' : lambda x, y : is_yes_or_no(x),
@@ -66,10 +66,10 @@ class RecieveSend:
             'Do you have heart disease?' : lambda x, y : is_yes_or_no(x),
             'Do you have lung disease?': lambda x, y : is_yes_or_no(x),
             'Have you had a stroke or do you have reduced immunity?': lambda x, y : is_yes_or_no(x),
-            'Have your symptoms progressed?': lambda x, y : is_yes_or_no(x),
+            'Have your symptoms gotten worse in the past few days?': lambda x, y : is_yes_or_no(x),
             'Do you have high blood pressure?': lambda x, y : is_yes_or_no(x),
             'Do you have kidney disease?': lambda x, y : is_yes_or_no(x),
-            'Have you recently had a change in appetite?': lambda x, y : is_yes_or_no(x),
+            'Have you recently had a sudden change in appetite?': lambda x, y : is_yes_or_no(x),
             'Do you had a loss of sense of smell?': lambda x, y : is_yes_or_no(x),
         }
 
