@@ -35,12 +35,6 @@ class RecieveSend:
         self.client = Client(self.sid, self.token)
         self.default_number = "+12262708145"
         self.questions = {
-            "Have you suffered from any of the following symptoms in the past 14 days?\nFever or chills\nCough\nShortness of breath or difficulty breathing\nFatigue\nMuscle or body aches\nHeadache\nNew loss of taste or smell\nSore throat\nCongestion or runny nose\nNausea or vomiting\nDiarrhea":
-                lambda answer, patient: is_yes_or_no(answer),
-            "Where could you have acquired your infection in the past 14 days?\nTraveling to a different country\nAttending a party\netc.":
-                lambda answer, patient: True,
-        }
-        self.questions2 = {
             "What is your address?" :
                 lambda answer, patient: get_prepared_string(answer) == get_prepared_string(patient.address),
             "What is your date of birth?" :
