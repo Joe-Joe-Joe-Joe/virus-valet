@@ -158,7 +158,6 @@ class RecieveSend:
     def ask_symptoms(self, patient, is_answer = 1):
         #if they have symptoms
 
-        print('mother fucker')
         patient.asked_about_symptoms = True
         patient.save()
         data = self.gather_user_data(patient)

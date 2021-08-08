@@ -43,7 +43,7 @@ def greeting(patient):
 
 
 def resend(request):
-    me =Patient.objects.filter(phone_number = "+12265678330")[0]
+    me = Patient.objects.filter(phone_number = "+12265678330")[0]
     me.asked_about_symptoms = True
     me.save()
     inter.send_questions(patient=me)
@@ -51,9 +51,6 @@ def resend(request):
     return HttpResponse("Okay then", content_type='text/xml')
 
 def nurse_dashboard_view(request):
-    for i in Patient.objects.all():
-        i.risk_to_self = -1
-        i.save()
     lacking_others = Patient.objects.filter(risk_to_others = -1)
     lacking_self = Patient.objects.filter(risk_to_self= -1)
     for i in lacking_others:
@@ -85,6 +82,7 @@ def nurse_dashboard_view(request):
     }
 
     for patient in patients:
+        print("testing")
         patient['risk_to_selfs'] = img_map[num_to_color[patient['risk_to_self']]]
         patient['risk_to_other'] = img_map[num_to_color[patient['risk_to_others']]]
 
