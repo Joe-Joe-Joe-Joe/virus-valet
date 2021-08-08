@@ -56,12 +56,12 @@ class RecieveSend:
         self.symptom_questions = {
             'How old are you?' : lambda x, y : isint(x),
             'Have you been experiencing a dry cough?': lambda x, y : is_yes_or_no(x),
-            'Have you been experiencing a sour throat': lambda x, y : is_yes_or_no(x),
+            'Have you been experiencing a sore throat': lambda x, y : is_yes_or_no(x),
             'Have you been experiencing weakness?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing a breathing problem?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing drowsiness?' : lambda x, y : is_yes_or_no(x),
             'Have you been experiencing a pain in your chest?' : lambda x, y : is_yes_or_no(x),
-            'Have you been experiencing travel history to infected countries?' : lambda x, y : is_yes_or_no(x),
+            'Have you traveled to infected countries recently?' : lambda x, y : is_yes_or_no(x),
             'Do you have diabetes?': lambda x, y : is_yes_or_no(x),
             'Do you have heart disease?' : lambda x, y : is_yes_or_no(x),
             'Do you have lung disease?': lambda x, y : is_yes_or_no(x),
@@ -70,7 +70,7 @@ class RecieveSend:
             'Do you have high blood pressure?': lambda x, y : is_yes_or_no(x),
             'Do you have kidney disease?': lambda x, y : is_yes_or_no(x),
             'Have you recently had a change in appetite?': lambda x, y : is_yes_or_no(x),
-            'Have you had a loss of sense of smell?': lambda x, y : is_yes_or_no(x),
+            'Do you had a loss of sense of smell?': lambda x, y : is_yes_or_no(x),
         }
 
     def full_reset(self):
@@ -255,21 +255,24 @@ class RecieveSend:
         return 0
 
     def gather_user_symptoms(self, patient):
-        data = self.gather_user_data(patient)
-        if not data.is_symptomatic:
-            return -1
-        messages = Message.objects.filter(patient = patient)
-        answers = [i for i in messages if i.is_answer > 0]
-        questions_answers = [i.message for i in answers if Message.objects.get(id = i.is_answer).message in self.symptom_questions]
+        try:
+            data = self.gather_user_data(patient)
+            if not data.is_symptomatic:
+                return -1
+            messages = Message.objects.filter(patient = patient)
+            answers = [i for i in messages if i.is_answer > 0]
+            questions_answers = [i.message for i in answers if Message.objects.get(id = i.is_answer).message in self.symptom_questions]
 
-        def find_responses_related(x, check_list):
-            try:
-                values = [question_answers.get(i) for i in question_answers if x in i][0].lower()
-                return values in check_list
-            except:
-                return False
-        data = [int(questions_answers[0])] + [self.yes_check(i) for i in questions_answers[1:]]
-        return data
+            def find_responses_related(x, check_list):
+                try:
+                    values = [question_answers.get(i) for i in question_answers if x in i][0].lower()
+                    return values in check_list
+                except:
+                    return False
+            data = [int(questions_answers[0])] + [self.yes_check(i) for i in questions_answers[1:]]
+            return data
+        except:
+            return -1
 
 
 
