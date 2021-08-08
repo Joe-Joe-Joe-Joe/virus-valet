@@ -35,22 +35,22 @@ class RecieveSend:
         self.client = Client(self.sid, self.token)
         self.default_number = "+12262708145"
         self.questions = {
-            "What is your address?" :
+            "What is your address? This is to establish your identity." :
                 lambda answer, patient: get_prepared_string(answer) == get_prepared_string(patient.address),
             "What is your date of birth?" :
                 lambda answer, patient: get_prepared_string(answer) == get_prepared_string(str(patient.date_of_birth))
             ,
-            "Have you suffered from any of the following symptoms in the past 14 days?\nFever or chills\nCough\nShortness of breath or difficulty breathing\nFatigue\nMuscle or body aches\nHeadache\nNew loss of taste or smell\nSore throat\nCongestion or runny nose\nNausea or vomiting\nDiarrhea":
+            "Have you experienced any cold or flu-like symptoms in the past 14 days?":
                 lambda answer, patient: is_yes_or_no(answer),
-            "Where could you have acquired your infection in the past 14 days?\nTraveling to a different country\nAttending a party\netc.":
+            "Where could you have acquired your infection from in the past 14 days?":
                 lambda answer, patient: True,
-            "Do you attend school or a workplace?":
+            "Do you attend a school or a workplace?":
                 lambda answer, patient: is_yes_or_no(answer),
-            "If yeas, What is your school or workplaces name?":
+            "Yes, What is your school or workplace's name?":
                 lambda answer, patient: True,
             "Have you started self-isolating?":
                 lambda answer, patient: is_yes_or_no(answer),
-            "If so, when did you start self-isolating?":
+            "When did you start self-isolating?":
                 lambda answer, patient: parse_date(answer),
         }
         self.symptom_questions = {
