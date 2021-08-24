@@ -33,13 +33,12 @@ img_map = {
 }
 
 
-#automated message functions
+# automated message functions
 def greeting(patient):
     return f'You are being contacted by the Local Health Unit to monitor your COVID-19 symptoms. \n\n' \
-    f'Our records show your full legal name as {patient.first_name} {patient.last_name} and your date of birth as ' \
-    f'{patient.date_of_birth}.\n\n If any of this information is inaccurate, text "INFO". \n\nOtherwise, text "NEXT". ' \
-    f'If at any time you wish to speak with a service representative, call 1-111-1-HEALTH.'
-
+        f'Our records show your full legal name as {patient.first_name} {patient.last_name} and your date of birth as' \
+        f' {patient.date_of_birth}.\n\n If any of this information is inaccurate, text "INFO".\n' \
+        f'\nOtherwise, text "NEXT".If at any time you wish to speak with a service representative, call 1-111-1-HEALTH.'
 
 
 def resend(request):
